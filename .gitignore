@@ -485,3 +485,6 @@ dist/
 
 # ignore release dir
 release/
+
+# ignore obj dir
+obj/
