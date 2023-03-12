@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href=".\css\styles.css">
+    <title>iCal Stripper</title>
+    <script defer src="./renderer.js"></script>
+</head>
+<body>
+    <div class="header">
+        <section class="section" id="headline">
+            <div class="container">
+                <h1 class="title">
+                    iCal Stripper
+                </h1>
+            </div>
+        </section>
+    </div>
+    <div class="content" id="container">
+        <section class="section" id="beforeDrop">
+            <div class="container">
+                <div id="dropzone">
+                    <section class="section">
+                        <div class="container" id="dropzonetext">
+                            Drag an iCal file here...
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+        <section class="section" id="afterDrop">
+            <div class="container">
+                <form id="stripParams">
+                    <table>
+                        <tr>
+                            <td colspan="4"><div id="descText">Enter the daterange you want to keep from the iCal File</div></td>
+                        </tr>
+                        <tr>
+                            <td class="label">
+                                <label for="startDate">Start Date</label>
+                            </td>
+                            <td class="datepicker">
+                                <input name="startDate"
+                                       type="date"
+                                       id="startDate"
+                                       class="datepicker"
+                                       label="Start Date"
+                                       oninput="updateStartDatePicker(this); return false;"
+                                       onchange="updateStartDatePicker(this); return false;" />
+                            </td>
+                            <td class="label">
+                                <label for="endDate">End Date</label>
+                            </td>
+                            <td class="datepicker">
+                                <input name="endDate"
+                                       type="date"
+                                       id="endDate"
+                                       class="datepicker"
+                                       label="End Date"
+                                       oninput="updateEndDatePicker(this); return false;"
+                                       onchange="updateEndDatePicker(this); return false;" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="submit" colspan="4">
+                                <input name="Submit"
+                                       type="submit"
+                                       id="submit"
+                                       class="button"
+                                       value="strip!"
+                                       disabled />
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <div class="footer">
+                iCalStripper is built with <span class="icon">&#10084;</span> using the following components: <!--&#xfe0f; for unicode variation selector 16 => emoji! -->
+                <div class="list">
+                    <span class="icon">&#11041;</span> Node.js <span id="node-version"></span><br>
+                    <span class="icon">&#127760;</span> Chromium <span id="chrome-version"></span><br>
+                    <span class="icon">&#9883;</span> Electron <span id="electron-version"></span><br>
+                    <span class="icon">&#128197;</span> iCal Toolkit <span id="ical-toolkit-version"></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="bg-modal">
+        <div class="modal-content" id="openSaveLocationPopup">
+            <div class="modal-text">Your file has been saved under the following location:</div>
+            <div class="modal-text" id="path">$path</div>
+            <div class="modal-text">How would you like to proceed?</div>
+            <form id="openSaveLocation">
+                <input name="Yes"
+                       type="submit"
+                       id="yes"
+                       class="button"
+                       value="Open file location & restart"
+                       disabled />
+                <input name="Both"
+                       type="submit"
+                       id="both"
+                       class="button"
+                       value="Open file location & quit"
+                       disabled />
+                <input name="No"
+                       type="submit"
+                       id="no"
+                       class="button"
+                       value="Quit now"
+                       disabled />
+            </form>           
+        </div>        
+    </div>
+</body>
+
+</html>
