@@ -1,0 +1,37 @@
+html,body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: medium;
+    font-weight: normal;
+}
+h1.title {
+    font-size: xx-large;
+    font-weight: bold;
+}
+h2 {
+    font-size: x-large;
+    font-weight: bold;
+}
+h3 {
+    font-size: large;
+    font-weight: bold;
+}
+section.section {
+    padding: 1vh;
+}
+div.container {
+    padding: 1vh;
+}
+div#dropzone {
+    border: dotted 5px gray;
+    border-radius: 10px;
+    height: 50vh;
+    width: 50vh;
+}
+footer div p {
+    font-size: small;
+    font-weight: lighter;
+    font-style: italic;
+}
+form#stripParams{
+    display: none;    
+}

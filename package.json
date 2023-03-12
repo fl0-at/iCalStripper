@@ -1,0 +1,41 @@
+{
+  "name": "i-cal-stripper",
+  "version": "0.7.1",
+  "description": "iCal Stripper",
+  "main": "main.js",
+  "scripts": {
+    "dist": "electron-builder"
+  },
+  "build": {
+    "directories": {
+      "buildResources": "resources",
+      "output": "release"
+    },
+    "productName": "iCalStripper",
+    "appId": "at.normanniawien|electron.iCalStripper",
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "rpm",
+        "snap",
+        "AppImage"
+      ]
+    }
+  },  
+  "author": {
+    "name": "floeffler"
+  },
+  "dependencies": {
+    "console-log-json": "^2.9.0",
+    "ical-toolkit": "^1.0.9",
+    "random-words": "^1.2.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^23.6.0"
+  }
+}
