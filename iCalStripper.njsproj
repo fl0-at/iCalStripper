@@ -25,7 +25,6 @@
     <Content Include="preload.js" />
     <Content Include="renderer.js" />
     <Content Include="css\styles.css" />
-    <Content Include="js\converter.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css" />
@@ -33,8 +32,6 @@
     <Folder Include="fonts\NotoColorEmoji" />
     <Folder Include="fonts\Raleway" />
     <Folder Include="fonts\Raleway\static" />
-    <Folder Include="iCalStripper" />
-    <Folder Include="js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
