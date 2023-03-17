@@ -4,8 +4,7 @@
 # ignore dist dir
 dist/
 
-# ignore release dir
-release/
+
 
 # ignore obj dir
 obj/
@@ -16,8 +15,9 @@ node_modules/
 # ignore bin dir
 bin/
 
-# build release dir
+# build & release dir
 build/Release
+release/
 
 # package lock
 package-lock.json
@@ -28,4 +28,4 @@ log/
 
 # VSCode files
 .vs/
-*.nsproj.user
+*.njsproj.user
