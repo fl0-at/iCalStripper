@@ -12,7 +12,7 @@
       "output": "release"
     },
     "productName": "iCalStripper",
-    "appId": "at.normanniawien|electron.iCalStripper",
+    "appId": "at.fl0|electron.iCalStripper",
     "win": {
       "target": [
         "portable"
@@ -28,7 +28,7 @@
     }
   },
   "author": {
-    "name": "floeffler"
+    "name": "fl0-at"
   },
   "dependencies": {
     "console-log-json": "^2.9.0",
