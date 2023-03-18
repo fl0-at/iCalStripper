@@ -4,8 +4,6 @@
 # ignore dist dir
 dist/
 
-
-
 # ignore obj dir
 obj/
 

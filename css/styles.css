@@ -16,7 +16,8 @@ html, body {
     -webkit-app-region: drag;
 }
 body {
-    min-height: 100vh;    
+    min-height: 100vh;   
+    background-color: #ffffff;
 }
 div.header {
     background-color: #000000;
@@ -156,7 +157,7 @@ footer div div.list {
     text-align: center;
 }
 span.icon {
-    font-family: NotoColorEmoji;/*'Segoe UI Emoji';*/
+    font-family: NotoColorEmoji;
     font-style: normal;
 }
 section#beforeDrop {

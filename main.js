@@ -27,6 +27,8 @@ function createWindow() {
             color: '#000000',
             symbolColor: '#ffffff'
         },
+        backgroundColor: '#000000',
+        icon: 'resources\icon.ico',
         webPreferences: {
             sandbox: false,
             preload: path.join(__dirname, 'preload.js'),
