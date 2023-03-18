@@ -22,6 +22,8 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 680,
         height: 480,
+        minWidth: 320,
+        minHeight: 256,
         titleBarStyle: 'hidden',
         titleBarOverlay: {
             color: '#000000',
