@@ -4,7 +4,7 @@
   "description": "iCal Stripper",
   "main": "main.js",
   "scripts": {
-    "dist": "electron-builder"
+    "build-portable": "electron-builder --win"
   },
   "build": {
     "directories": {
