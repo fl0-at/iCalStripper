@@ -17,9 +17,6 @@ bin/
 build/Release
 release/
 
-# package lock
-package-lock.json
-
 # log files
 *.log
 log/
