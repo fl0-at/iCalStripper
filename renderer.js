@@ -22,6 +22,14 @@ function updateEndDatePicker(obj) {
     endDateElement.setAttribute("value", obj.value);
 }
 
+startDateElement.addEventListener("keydown", function (e) {
+    e.preventDefault();
+});
+
+endDateElement.addEventListener("keydown", function (e) {
+    e.preventDefault();
+});
+
 dropzone.addEventListener("dragover", (e) => {
     // stop propagation and prevent default behaviour
     e.stopPropagation();
@@ -98,7 +106,7 @@ dropzone.addEventListener("drop", async (e) => {
                         document.querySelector("input.button#both").disabled = false;
                         document.querySelector("input.button#no").disabled = false;
 
-                        // change info texts        
+                        // change info texts
                         document.getElementById("infotext").innerHTML = "Start date cannot be later than end date!";
                         document.getElementById("path").innerHTML = "Please amend dates, relaunch or quit.";
 
@@ -120,6 +128,9 @@ dropzone.addEventListener("drop", async (e) => {
                             // reset info text
                             document.getElementById("infotext").innerHTML = "Your file has been saved under the following location:";
                             document.getElementById("path").innerHTML = "$path";
+
+                            // finally re-enable the submit button
+                            submit.disabled = false;
 
                             // that's it, the user is free to try again now :D
                         });

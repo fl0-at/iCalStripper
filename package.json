@@ -1,10 +1,12 @@
 {
   "name": "i-cal-stripper",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "iCal Stripper",
   "main": "main.js",
   "scripts": {
-    "build-portable": "electron-builder --win"
+    "build-win": "electron-builder --win",
+    "build-linux": "electron-builder --linux",
+    "build-mac": "electron-builder --mac"
   },
   "build": {
     "directories": {
@@ -15,7 +17,10 @@
     "appId": "at.fl0|electron.iCalStripper",
     "win": {
       "target": [
-        "portable"
+        "portable",
+        "appx",
+        "nsis",
+        "nsis-web"
       ]
     },
     "linux": {
@@ -25,10 +30,20 @@
         "snap",
         "AppImage"
       ]
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "appx": {
+      "identityName": "iCalStripper"
     }
   },
   "author": {
-    "name": "fl0-at"
+    "name": "fl0-at",
+    "email": "florianjohannesloeffler@gmail.com"
   },
   "dependencies": {
     "console-log-json": "^2.9.0",

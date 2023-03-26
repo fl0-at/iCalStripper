@@ -76,6 +76,9 @@ div.container {
 input.datepicker {
     text-align: right;
 }
+input.datepicker[type=date]::-webkit-clear-button {
+    display: none;
+}
 tr {
     display: flex;
     flex-direction: row;

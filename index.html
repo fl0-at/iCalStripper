@@ -48,7 +48,11 @@
                                        class="datepicker"
                                        label="Start Date"
                                        oninput="updateStartDatePicker(this); return false;"
-                                       onchange="updateStartDatePicker(this); return false;" />
+                                       onchange="updateStartDatePicker(this); return false;"
+                                       onfocus="this.showPicker(); return false;"
+                                       onclick="this.showPicker(); return false;"
+                                       required
+                                />
                             </td>
                             <td class="label">
                                 <label for="endDate">End Date</label>
@@ -60,7 +64,11 @@
                                        class="datepicker"
                                        label="End Date"
                                        oninput="updateEndDatePicker(this); return false;"
-                                       onchange="updateEndDatePicker(this); return false;" />
+                                       onchange="updateEndDatePicker(this); return false;"
+                                       onfocus="this.showPicker(); return false;"
+                                       onclick="this.showPicker(); return false;"
+                                       required
+                                />
                             </td>
                         </tr>
                         <tr>
