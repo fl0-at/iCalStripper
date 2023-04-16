@@ -23,7 +23,8 @@ function createWindow() {
         width: 680,
         height: 480,
         minWidth: 320,
-        minHeight: 256,
+        minHeight: 256,        
+        title: 'iCal Stripper ' + app.getVersion(),
         titleBarStyle: 'hidden',
         titleBarOverlay: {
             color: '#000000',

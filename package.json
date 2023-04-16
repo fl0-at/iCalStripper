@@ -1,6 +1,6 @@
 {
   "name": "i-cal-stripper",
-  "version": "0.8.2",
+  "version": "0.8.5",
   "description": "iCal Stripper",
   "main": "main.js",
   "scripts": {

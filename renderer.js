@@ -5,7 +5,6 @@ const sectionBeforeDrop = document.getElementById("beforeDrop");
 const sectionAfterDrop = document.getElementById("afterDrop");
 const datepickerElement = document.getElementById("dateRangePicker");
 
-
 dropzone.addEventListener("dragover", (e) => {
     // stop propagation and prevent default behaviour
     e.stopPropagation();
@@ -41,6 +40,7 @@ dropzone.addEventListener("drop", async (e) => {
         const dpo = {
             range: true,
             multipleDatesSeparator: ' - ',
+            minDate: new Date('1920-11-06'),
             selectedDates: [todayDateTime, tomorrowDateTime],
             isMobile: true,
             autoClose: true,
@@ -71,9 +71,9 @@ dropzone.addEventListener("drop", async (e) => {
             const isICal = await window.api.isICal(file.type);
 
             const fileContent = await window.api.getFileContent(file.path);
-            console.log(String(fileContent));
+            //console.log(String(fileContent));
 
-            console.log(file, isFile, isICal);
+            //console.log(file, isFile, isICal);
 
             if (isFile && isICal) {
                 // if the submit button is clicked:
@@ -151,13 +151,13 @@ dropzone.addEventListener("drop", async (e) => {
                         // convert the iCal file to JSON
                         var curFile = file;
                         const jCal = await window.api.convertICalToJSON(curFile.path);
-                        console.log(jCal);
+                        //console.log(jCal);
                         // strip the JSON file of unnecessary event objects
                         const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
-                        console.log(jCal_stripped);
+                        //console.log(jCal_stripped);
                         // build a new iCal file from stripped JSON
                         const newICal = await window.api.convertJSONToICal(jCal_stripped);
-                        console.log(newICal);
+                        //console.log(newICal);
                         // save the new iCal to the disk
                         window.api.saveFileToDisk(curFile.path, curFile.name, newICal, "ics");
 

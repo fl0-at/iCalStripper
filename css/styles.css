@@ -238,4 +238,6 @@ form#openSaveLocation {
     --adp-cell-background-color-in-range: var(--info-text) !important;
     --adp-cell-background-color-selected-hover: var(--secondary-color) !important;
     --adp-day-name-color: var(--secondary-color) !important;
+    --adp-color-current-date: var(--secondary-color) !important;
+    --adp-background-color-in-range: var(--info-text) !important;
 }
