@@ -219,7 +219,8 @@ ipcMain.handle("convert-json-to-ics", async (_, jCal_stripped) => {
     }
 
     // build iCal File
-    var icsFileContent = newICal.toString();
+    var icsFileContent = newICal.toString().replaceAll('\\\\n', '\\n').replaceAll('\\\\\\', '').replaceAll('\\\\', '');
+    // had to replace some escape characters as this is apparently neither handled by iCalToolkit nor by ical2json which it relies on
 
     // check for any errors
     if (icsFileContent instanceof Error) {
