@@ -1,34 +1,10 @@
 const dropzone = document.getElementById("dropzone");
 const stripForm = document.getElementById("stripParams");
 const submit = document.getElementById("submit");
-const startDateElement = document.getElementById("startDate");
-const endDateElement = document.getElementById("endDate");
 const sectionBeforeDrop = document.getElementById("beforeDrop");
 const sectionAfterDrop = document.getElementById("afterDrop");
+const datepickerElement = document.getElementById("dateRangePicker");
 
-function updateStartDatePicker(obj) {
-    endDateElement.setAttribute("min", obj.value);
-    if (endDateElement.getAttribute("value") < obj.value) {
-        endDateElement.setAttribute("value", obj.value);
-    }
-    startDateElement.setAttribute("value", obj.value);
-}
-
-function updateEndDatePicker(obj) {
-    startDateElement.setAttribute("max", obj.value);
-    if (startDateElement.getAttribute("value") > obj.value) {
-        startDateElement.setAttribute("value", obj.value);
-    }
-    endDateElement.setAttribute("value", obj.value);
-}
-
-startDateElement.addEventListener("keydown", function (e) {
-    e.preventDefault();
-});
-
-endDateElement.addEventListener("keydown", function (e) {
-    e.preventDefault();
-});
 
 dropzone.addEventListener("dragover", (e) => {
     // stop propagation and prevent default behaviour
@@ -54,16 +30,38 @@ dropzone.addEventListener("drop", async (e) => {
         stripForm.style.setProperty("display", "flex");
         sectionAfterDrop.style.setProperty("display", "flex");
 
-        // get today's date time and strip away the time so we get today's date only
-        const todayDateTime = new Date();
-        const [todayDate] = todayDateTime.toISOString().split("T");
+        // get today's and tomorrow's datetime
+        const todayDateTime = new Date(); 
+        const tomorrowDateTime = new Date();
+        tomorrowDateTime.setDate((todayDateTime.getDate() + 1));
 
-        // populate date pickers
-        startDateElement.setAttribute("value", todayDate);
-        endDateElement.setAttribute("value", todayDate);
+
+        // date picker?!?
+        const dpe = "#dateRangePicker";
+        const dpo = {
+            range: true,
+            multipleDatesSeparator: ' - ',
+            selectedDates: [todayDateTime, tomorrowDateTime],
+            isMobile: true,
+            autoClose: true,
+            locale: {
+                days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                today: 'Today',
+                clear: 'Clear',
+                dateFormat: 'dd.MM.yyyy',
+                timeFormat: 'HH:mm',
+                firstDay: 0
+            }
+        };
+        const datepicker = window.api.newAirDatePicker(dpe,dpo);
 
         // enable the submit button
         submit.disabled = false;
+        datepickerElement.disabled = false;
 
         // for each file that was dropped, do this:
         for (const file of files) {
@@ -71,6 +69,9 @@ dropzone.addEventListener("drop", async (e) => {
             // populate booleans with their appropriate values
             const isFile = await window.api.isFile(file.path);
             const isICal = await window.api.isICal(file.type);
+
+            const fileContent = await window.api.getFileContent(file.path);
+            //console.log(String(fileContent));
 
             //console.log(file, isFile, isICal);
 
@@ -84,10 +85,12 @@ dropzone.addEventListener("drop", async (e) => {
 
                     // disable submit button
                     submit.disabled = true;
+                    datepickerElement.disabled = true;
 
-                    // get start and end date for range from datepickers
-                    const startDate = new Date(startDateElement.getAttribute("value"));
-                    const endDate = new Date(endDateElement.getAttribute("value"));
+                    // get start and end date for range from datepicker
+                    const dateRange = datepickerElement.value;       
+                    const startDate = new Date( String(String(dateRange).split(" - ")[0]).split(".")[2], String(String(dateRange).split(" - ")[0]).split(".")[1]-1, String(String(dateRange).split(" - ")[0]).split(".")[0] );
+                    const endDate = new Date( String(String(dateRange).split(" - ")[1]).split(".")[2], String(String(dateRange).split(" - ")[1]).split(".")[1]-1, String(String(dateRange).split(" - ")[1]).split(".")[0] );                    
 
                     // check if startDate > endDate
                     if (!(startDate <= endDate)) { // show user a warning
@@ -131,6 +134,7 @@ dropzone.addEventListener("drop", async (e) => {
 
                             // finally re-enable the submit button
                             submit.disabled = false;
+                            datepickerElement.disabled = false;
 
                             // that's it, the user is free to try again now :D
                         });
@@ -147,13 +151,13 @@ dropzone.addEventListener("drop", async (e) => {
                         // convert the iCal file to JSON
                         var curFile = file;
                         const jCal = await window.api.convertICalToJSON(curFile.path);
-
+                        //console.log(jCal);
                         // strip the JSON file of unnecessary event objects
                         const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
-
+                        //console.log(jCal_stripped);
                         // build a new iCal file from stripped JSON
                         const newICal = await window.api.convertJSONToICal(jCal_stripped);
-
+                        //console.log(newICal);
                         // save the new iCal to the disk
                         window.api.saveFileToDisk(curFile.path, curFile.name, newICal, "ics");
 

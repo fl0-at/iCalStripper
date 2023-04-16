@@ -89,6 +89,11 @@ ipcMain.handle("is-iCal", async (_, fileType) => {
     return fileType === "text/calendar" ? true : false;
 })
 
+// get file contents - only used for debugging
+ipcMain.handle("get-file-content", async (_, path) => {
+    return await (await fs.readFile(path)).toString();
+})
+
 // convert ICS to JSON
 ipcMain.handle("convert-ics-to-json", async (_, path) => {
     const icsRes = await path;

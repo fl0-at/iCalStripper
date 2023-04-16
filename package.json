@@ -1,6 +1,6 @@
 {
   "name": "i-cal-stripper",
-  "version": "0.7.6",
+  "version": "0.8.0",
   "description": "iCal Stripper",
   "main": "main.js",
   "scripts": {
@@ -46,6 +46,7 @@
     "email": "florianjohannesloeffler@gmail.com"
   },
   "dependencies": {
+    "air-datepicker": "^3.3.5",
     "console-log-json": "^2.9.0",
     "ical-toolkit": "^1.0.9",
     "random-words": "^1.2.0"
