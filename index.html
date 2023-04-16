@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href=".\css\styles.css">
-    <title>iCal Stripper</title>
+    
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./node_modules/air-datepicker/air-datepicker.css" />
+    
     <script defer src="./renderer.js"></script>
 </head>
 <body>
@@ -39,34 +41,15 @@
                         </tr>
                         <tr>
                             <td class="label">
-                                <label for="startDate">Start Date</label>
+                                <label for="startDate">Date Range</label>
                             </td>
                             <td class="datepicker">
-                                <input name="startDate"
-                                       type="date"
-                                       id="startDate"
+                                <input name="dateRange"
+                                       type="text"
+                                       id="dateRangePicker"
                                        class="datepicker"
-                                       label="Start Date"
-                                       oninput="updateStartDatePicker(this); return false;"
-                                       onchange="updateStartDatePicker(this); return false;"
-                                       onfocus="this.showPicker(); return false;"
-                                       onclick="this.showPicker(); return false;"
-                                       required
-                                />
-                            </td>
-                            <td class="label">
-                                <label for="endDate">End Date</label>
-                            </td>
-                            <td class="datepicker">
-                                <input name="endDate"
-                                       type="date"
-                                       id="endDate"
-                                       class="datepicker"
-                                       label="End Date"
-                                       oninput="updateEndDatePicker(this); return false;"
-                                       onchange="updateEndDatePicker(this); return false;"
-                                       onfocus="this.showPicker(); return false;"
-                                       onclick="this.showPicker(); return false;"
+                                       label="Date Range"
+                                       readonly
                                        required
                                 />
                             </td>
@@ -95,7 +78,8 @@
                     <span class="icon">&#11041;</span> Node.js <span id="node-version"></span><br>
                     <span class="icon">&#127760;</span> Chromium <span id="chrome-version"></span><br>
                     <span class="icon">&#9883;</span> Electron <span id="electron-version"></span><br>
-                    <span class="icon">&#128197;</span> iCal Toolkit <span id="ical-toolkit-version"></span>
+                    <span class="icon">📆</span> iCal Toolkit <span id="ical-toolkit-version"></span><br>
+                    <span class="icon">📅</span> AIR DATEPICKER <span id="air-datepicker-version"></span>
                 </div>
             </div>
         </div>

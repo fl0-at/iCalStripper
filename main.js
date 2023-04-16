@@ -23,7 +23,8 @@ function createWindow() {
         width: 680,
         height: 480,
         minWidth: 320,
-        minHeight: 256,
+        minHeight: 256,        
+        title: 'iCal Stripper ' + app.getVersion(),
         titleBarStyle: 'hidden',
         titleBarOverlay: {
             color: '#000000',
@@ -87,6 +88,11 @@ ipcMain.handle("is-file", async (_, path) => {
 // check if the dropped file is an iCal file
 ipcMain.handle("is-iCal", async (_, fileType) => {
     return fileType === "text/calendar" ? true : false;
+})
+
+// get file contents - only used for debugging
+ipcMain.handle("get-file-content", async (_, path) => {
+    return await (await fs.readFile(path)).toString();
 })
 
 // convert ICS to JSON
@@ -214,7 +220,8 @@ ipcMain.handle("convert-json-to-ics", async (_, jCal_stripped) => {
     }
 
     // build iCal File
-    var icsFileContent = newICal.toString();
+    var icsFileContent = newICal.toString().replaceAll('\\\\n', '\\n').replaceAll('\\\\\\', '').replaceAll('\\\\', '');
+    // had to replace some escape characters as this is apparently neither handled by iCalToolkit nor by ical2json which it relies on
 
     // check for any errors
     if (icsFileContent instanceof Error) {
