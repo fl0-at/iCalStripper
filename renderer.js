@@ -70,7 +70,7 @@ dropzone.addEventListener("drop", async (e) => {
             const isFile = await window.api.isFile(file.path);
             const isICal = await window.api.isICal(file.type);
 
-            const fileContent = await window.api.getFileContent(file.path);
+            //const fileContent = await window.api.getFileContent(file.path);
             //console.log(String(fileContent));
 
             //console.log(file, isFile, isICal);

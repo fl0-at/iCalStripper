@@ -38,8 +38,6 @@ function createWindow() {
         }
     });
 
-    
-
     // hide menu bar    
     mainWindow.setMenuBarVisibility(false)
 
