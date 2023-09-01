@@ -41,7 +41,8 @@
       "target": [
         "portable",
         "nsis"
-      ]
+      ],
+      "publish": ["github"]
     },
     "linux": {
       "target": [
