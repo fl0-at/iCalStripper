@@ -1,12 +1,13 @@
 {
   "name": "i-cal-stripper",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "iCal Stripper",
   "main": "main.js",
   "scripts": {
     "build-win": "electron-builder --win",
     "build-linux": "electron-builder --linux",
-    "build-mac": "electron-builder --mac"
+    "build-mac": "electron-builder --mac",
+    "publish-win": "electron-builder --win -p always"
   },
   "keywords": [
     "iCal",
@@ -37,12 +38,21 @@
       "output": "release"
     },
     "productName": "iCalStripper",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "fl0-at",
+        "repo": "iCalStripper"
+      }
+    ],
     "win": {
+      "publish": [
+        "github"
+      ],
       "target": [
         "portable",
         "nsis"
-      ],
-      "publish": ["github"]
+      ]
     },
     "linux": {
       "target": [
