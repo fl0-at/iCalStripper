@@ -5,6 +5,7 @@
   "main": "main.js",
   "scripts": {
     "build-win": "electron-builder --win",
+    "build-portable": "electron-builder --win",
     "build-linux": "electron-builder --linux",
     "build-mac": "electron-builder --mac",
     "publish-win": "electron-builder --win -p always"
@@ -50,8 +51,12 @@
         "github"
       ],
       "target": [
-        "portable",
         "nsis"
+      ]
+    },
+    "win-portable": {
+      "target": [
+        "portable"
       ]
     },
     "linux": {
