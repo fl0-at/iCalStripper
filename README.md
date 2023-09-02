@@ -24,12 +24,12 @@ Clone the repo and follow these steps:
 # install dependencies
 npm install
 
-# for Windows
+# build for Windows
 npm run build-win
 
-# for Mac
+# build for Mac (untested, I don't have access to a Mac)
 npm run build-mac
 
-# for Linux (only tested on Debian)
+# build for Linux (only tested on Debian)
 npm run build-linus
 ```
