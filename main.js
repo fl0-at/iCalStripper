@@ -8,12 +8,17 @@ const jsonLogger = require('console-log-json');
 const pth = require('path');
 const randWords = require('random-words');
 const { shell } = require('electron');
-const { autoUpdater } = require('electron-updater');
+const { autoUpdater } = require("electron-updater");
 
 jsonLogger.LoggerAdaptToConsole();
 
 var newFilePath;
 
+let mainWindow;
+
+app.on("ready", () => {
+    autoUpdater.checkForUpdatesAndNotify();
+});
 function setFilePath(filePath) {
     newFilePath = filePath;
 };
@@ -77,9 +82,6 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
 
-    app.on('ready', function () {
-        autoUpdater.checkForUpdatesAndNotify();
-    });
 })
 
 
