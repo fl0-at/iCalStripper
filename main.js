@@ -76,11 +76,13 @@ app.whenReady().then(() => {
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+
+    app.on('ready', function () {
+        autoUpdater.checkForUpdatesAndNotify();
+    });
 })
 
-app.on('ready', function () {
-    autoUpdater.checkForUpdatesAndNotify();
-});
+
 
 // check if a file or directory was dropped
 ipcMain.handle("is-file", async (_, path) => {
