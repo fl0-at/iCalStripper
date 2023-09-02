@@ -5,6 +5,11 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "iCalStripper", "iCalStripper.njsproj", "{29BF9CB5-DB64-4800-9FD6-E77AA92C0B9E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{DE2EE403-F3B1-4B73-B8F2-3F28AAF0CB1D}"
+	ProjectSection(SolutionItems) = preProject
+		secrets.env = secrets.env
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

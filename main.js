@@ -8,11 +8,17 @@ const jsonLogger = require('console-log-json');
 const pth = require('path');
 const randWords = require('random-words');
 const { shell } = require('electron');
+const { autoUpdater } = require("electron-updater");
 
 jsonLogger.LoggerAdaptToConsole();
 
 var newFilePath;
 
+let mainWindow;
+
+app.on("ready", () => {
+    autoUpdater.checkForUpdatesAndNotify();
+});
 function setFilePath(filePath) {
     newFilePath = filePath;
 };
@@ -37,8 +43,6 @@ function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
         }
     });
-
-    
 
     // hide menu bar    
     mainWindow.setMenuBarVisibility(false)
@@ -77,7 +81,10 @@ app.whenReady().then(() => {
         // dock icon is clicked and there are no other windows open.
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+
 })
+
+
 
 // check if a file or directory was dropped
 ipcMain.handle("is-file", async (_, path) => {

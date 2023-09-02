@@ -24,6 +24,3 @@ log/
 # VSCode files
 .vs/
 *.njsproj.user
-
-# env files
-*.env
