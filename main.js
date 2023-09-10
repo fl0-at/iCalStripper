@@ -63,8 +63,10 @@ function iCalDateToDateTime(iCalDateString) {
     var min = iCalDateString.substr(11, 2);
     var sec = iCalDateString.substr(13, 2);
 
+    // iCal dates are always stored in UTC, so get UTC date
     var dateTimeUTC = new Date(Date.UTC(y, m, d, h, min, sec));
 
+    // convert UTC date to local
     var localDateTime = new Date(
         dateTimeUTC.getFullYear(),
         dateTimeUTC.getMonth(),
