@@ -14,8 +14,6 @@ jsonLogger.LoggerAdaptToConsole();
 
 var newFilePath;
 
-let mainWindow;
-
 app.on("ready", () => {
     autoUpdater.checkForUpdatesAndNotify();
 });
@@ -23,7 +21,7 @@ function setFilePath(filePath) {
     newFilePath = filePath;
 };
 
-function createWindow() {
+async function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 680,
@@ -45,13 +43,14 @@ function createWindow() {
     });
 
     // hide menu bar    
-    mainWindow.setMenuBarVisibility(false)
+    mainWindow.setMenuBarVisibility(false);
 
     // and load the index.html of the app.
-    mainWindow.loadFile('index.html')
+    await mainWindow.loadFile('index.html');
 
     // Open the DevTools.
-    //mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools();
+
 }
 
 function iCalDateToDateTime(iCalDateString) {
@@ -64,9 +63,18 @@ function iCalDateToDateTime(iCalDateString) {
     var min = iCalDateString.substr(11, 2);
     var sec = iCalDateString.substr(13, 2);
 
-    var dateTime = new Date(y, m, d, h, min, sec);
+    var dateTimeUTC = new Date(Date.UTC(y, m, d, h, min, sec));
 
-    return dateTime;
+    var localDateTime = new Date(
+        dateTimeUTC.getFullYear(),
+        dateTimeUTC.getMonth(),
+        dateTimeUTC.getDate(),
+        dateTimeUTC.getHours(),
+        dateTimeUTC.getMinutes(),
+        dateTimeUTC.getSeconds()
+    );
+
+    return localDateTime;
 
 }
 
@@ -135,16 +143,18 @@ ipcMain.handle("strip-jcal", async (_, jCal, startDate, endDate) => {
                     // determine whether to keep the event or not
                     switch (attributeName) {
                         case 'DTSTART':
+                            // need to convert from utc to local
                             eventStartDate = iCalDateToDateTime(curEvent[attributeName]);
                             break;
                         case 'DTEND':
+                            // need to convert from utc to local
                             eventEndDate = iCalDateToDateTime(curEvent[attributeName]);
                             break;
                         default:
                             break;
                     }
                 }
-                // finished looping through attributes - now either in- or exclude event
+                // finished looping through attributes - now either in- or exclude event                
                 if (eventStartDate >= startDate && eventEndDate <= endDate) {
                     // we want to keep this one, since it is within our boundaries
                     newEventArr.push(curEvent);
@@ -157,6 +167,7 @@ ipcMain.handle("strip-jcal", async (_, jCal, startDate, endDate) => {
     }
 
     const newJCal = JSON.parse(JSON.stringify(newCal));
+
     return newJCal;
 
 }) 
