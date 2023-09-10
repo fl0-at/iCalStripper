@@ -31,5 +31,5 @@ npm run build-win
 npm run build-mac
 
 # build for Linux (only tested on Debian)
-npm run build-linus
+npm run build-linux
 ```
