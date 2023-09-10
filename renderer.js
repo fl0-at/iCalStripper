@@ -154,7 +154,7 @@ dropzone.addEventListener("drop", async (e) => {
                         //console.log(jCal);
                         // strip the JSON file of unnecessary event objects
                         const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
-                        //console.log(jCal_stripped);
+                        console.log(jCal_stripped);
                         // build a new iCal file from stripped JSON
                         const newICal = await window.api.convertJSONToICal(jCal_stripped);
                         //console.log(newICal);
