@@ -53,7 +53,7 @@ async function createWindow() {
 
 }
 
-function iCalDateToDateTime(iCalDateString) {
+function iCalDateToLocalDateTime(iCalDateString) {
 
     // icalStr = '20110914T184000Z'             
     var y = iCalDateString.substr(0, 4);
@@ -77,6 +77,32 @@ function iCalDateToDateTime(iCalDateString) {
     );
 
     return localDateTime;
+
+}
+
+function iCalDateToLocalisedDateTime(iCalDateString, timeZoneString) {
+
+    // icalStr = '20110914T184000Z'             
+    var y = iCalDateString.substr(0, 4);
+    var m = parseInt(iCalDateString.substr(4, 2), 10) - 1;
+    var d = iCalDateString.substr(6, 2);
+    var h = iCalDateString.substr(9, 2);
+    var min = iCalDateString.substr(11, 2);
+    var sec = iCalDateString.substr(13, 2);
+
+    // iCal dates are always stored in UTC, so get UTC date
+    var dateTimeUTC = new Date(Date.UTC(y, m, d, h, min, sec));
+
+    // convert UTC date to local
+    var localisedDateTime = new Date(
+        dateTimeUTC.toLocaleString(
+            "en-us", {
+                timeZone: timeZoneString
+            }
+        )
+    );
+
+    return localisedDateTime;
 
 }
 
@@ -145,12 +171,12 @@ ipcMain.handle("strip-jcal", async (_, jCal, startDate, endDate) => {
                     // determine whether to keep the event or not
                     switch (attributeName) {
                         case 'DTSTART':
-                            // need to convert from utc to local
-                            eventStartDate = iCalDateToDateTime(curEvent[attributeName]);
+                            // here we are using the current user's local time 
+                            eventStartDate = iCalDateToLocalDateTime(curEvent[attributeName]);
                             break;
                         case 'DTEND':
-                            // need to convert from utc to local
-                            eventEndDate = iCalDateToDateTime(curEvent[attributeName]);
+                            // here we are using the current user's local time 
+                            eventEndDate = iCalDateToLocalDateTime(curEvent[attributeName]);
                             break;
                         default:
                             break;
@@ -218,9 +244,9 @@ ipcMain.handle("convert-json-to-ics", async (_, jCal_stripped) => {
                 var curEvent = eventObj[indexPos];                
 
                 newICal.events.push({
-                    start: iCalDateToDateTime(curEvent['DTSTART']),
-                    end: iCalDateToDateTime(curEvent['DTEND']),
-                    stamp: iCalDateToDateTime(curEvent['DTSTAMP']),
+                    start: iCalDateToLocalisedDateTime(curEvent['DTSTART'], newICal.timezone),
+                    end: iCalDateToLocalisedDateTime(curEvent['DTEND'], newICal.timezone),
+                    stamp: iCalDateToLocalisedDateTime(curEvent['DTSTAMP'], newICal.timezone),
                     uid: curEvent['UID'],
                     description: curEvent['DESCRIPTION'],
                     location: curEvent['LOCATION'],
