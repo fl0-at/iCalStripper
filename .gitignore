@@ -25,3 +25,7 @@ log/
 # VSCode files
 .vs/
 *.njsproj.user
+
+# VisualStudio files
+*.njsproj
+*.sln
