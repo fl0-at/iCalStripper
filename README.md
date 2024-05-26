@@ -24,8 +24,11 @@ Clone the repo and follow these steps:
 # install dependencies
 npm install
 
-# build for Windows
+# build for Windows (installer)
 npm run build-win
+
+# build for Windows (portable)
+npm run build-win-portable
 
 # build for Mac (untested, I don't have access to a Mac)
 npm run build-mac
