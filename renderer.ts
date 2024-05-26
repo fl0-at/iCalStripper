@@ -1,0 +1,278 @@
+// delcare html elements
+const dropzone:HTMLDivElement|null = document.getElementsByTagName("div").namedItem("dropzone");
+const stripForm:HTMLFormElement|null = document.getElementsByTagName("form").namedItem("stripParams");
+const submit:HTMLInputElement|null = document.getElementsByTagName("input").namedItem("submit");
+const sectionBeforeDrop:HTMLElement|null = document.getElementsByTagName("section").namedItem("beforeDrop");
+const sectionAfterDrop:HTMLElement|null = document.getElementsByTagName("section").namedItem("afterDrop");
+const datepickerElement:HTMLInputElement|null = document.getElementsByTagName("input").namedItem("dateRangePicker");
+const modalBG:HTMLElement|null = document.querySelector(".bg-modal");
+const divModalBG:HTMLElement|null = document.querySelector("div.bg-modal");
+const buttonYes:HTMLButtonElement|null = document.querySelector("input.button#yes");
+const buttonBoth:HTMLButtonElement|null = document.querySelector("input.button#both");
+const buttonNo:HTMLButtonElement|null = document.querySelector("input.button#no");
+const infoTxt:HTMLElement|null = document.getElementById("infotext");
+const pathTxt:HTMLElement|null = document.getElementById("path");
+
+// check if any HTML element does not exist
+if (!(
+    dropzone &&
+    stripForm &&
+    submit &&
+    sectionBeforeDrop && sectionAfterDrop &&
+    datepickerElement &&
+    modalBG && divModalBG &&
+    buttonBoth && buttonNo && buttonYes &&
+    infoTxt && pathTxt
+)) {
+    throw new Error("Unexpected Error - one or more HTML elements is null");                            
+}
+
+
+dropzone.addEventListener("dragover", (e) => {
+    // stop propagation and prevent default behaviour
+    e.stopPropagation();
+    e.preventDefault();
+});
+
+dropzone.addEventListener("drop", async (e) => {
+    // stop propagation and prevent default behaviour
+    e.stopPropagation();
+    e.preventDefault();
+
+    // get files
+    if(!e.dataTransfer) throw new Error("Unexpected Error");
+    
+    const files = e.dataTransfer.files;
+    
+    if (files.length === 1) {
+
+        // hide dropzone
+        dropzone.style.setProperty("display", "none");        
+        sectionBeforeDrop.style.setProperty("display", "none");
+
+        // show strip form
+        stripForm.style.setProperty("display", "flex");
+        sectionAfterDrop.style.setProperty("display", "flex");
+
+        // get today's and tomorrow's datetime
+        const todayDateTime = new Date(); 
+        const tomorrowDateTime = new Date();
+        tomorrowDateTime.setDate((todayDateTime.getDate() + 1));
+
+
+        // date picker?!?
+        const dpe = "#dateRangePicker";
+        const dpo:any = {
+            range: true,
+            multipleDatesSeparator: ' - ',
+            minDate: new Date('1920-11-06'),
+            selectedDates: [todayDateTime, tomorrowDateTime],
+            isMobile: true,
+            autoClose: true,
+            locale: {
+                days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                today: 'Today',
+                clear: 'Clear',
+                dateFormat: 'dd.MM.yyyy',
+                timeFormat: 'HH:mm',
+                firstDay: 0
+            }
+        };
+        window.api.newAirDatePicker(dpe, dpo);        
+
+        // enable the submit button        
+        submit.disabled = false;
+        if(datepickerElement===null||typeof datepickerElement === 'undefined') throw new Error("Datepicker element must not be null or undefined!");
+        datepickerElement.disabled = false;
+
+        // for each file that was dropped, do this:
+        for (const file of files) {
+
+            // populate booleans with their appropriate values
+            const isFile = await window.api.isFile(file.path);
+            const isICal = await window.api.isICal(file.type);
+
+            //const fileContent = await window.api.getFileContent(file.path);
+            //console.log(String(fileContent));
+
+            //console.log(file, isFile, isICal);            
+
+            if (isFile && isICal) {
+                // if the submit button is clicked:
+                submit.addEventListener("click", async (e) => {                                     
+
+                    // stop propagation and prevent default behaviour
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    // disable submit button
+                    submit.disabled = true;
+                    if(datepickerElement===null||typeof datepickerElement === 'undefined') throw new Error("Datepicker element must not be null or undefined!");
+                    datepickerElement.disabled = true;
+
+                    // get start and end date for range from datepicker
+                    const dateRange:string = datepickerElement.value;
+                    
+                    // parse input string to numbers
+                    const startYear:number = Number(String((dateRange).split(" - ")[0]).split(".")[2]);
+                    const startMonth:number = Number(String(String(dateRange).split(" - ")[0]).split(".")[1])-1;
+                    const startDay:number = Number(String(String(dateRange).split(" - ")[0]).split(".")[0]);
+                    
+                    const endYear:number = Number(String(String(dateRange).split(" - ")[1]).split(".")[2]);
+                    const endMonth:number = Number(String(String(dateRange).split(" - ")[1]).split(".")[1])-1;
+                    const endDay:number = Number(String(String(dateRange).split(" - ")[1]).split(".")[0]);
+
+                    // assign dates to startDate and endDate params
+                    const startDate = new Date( startYear, startMonth, startDay );
+                    const endDate = new Date( endYear, endMonth, endDay );
+
+                    // check if startDate > endDate
+                    if (!(startDate <= endDate)) { // show user a warning                       
+
+                        // show modal bg
+                        modalBG.style.display = "flex";
+                        divModalBG.style.setProperty("background-color", "rgba(0,0,0,0.75)");
+
+                        // change button text                        
+                        buttonYes.setAttribute("value", "Close dialogue");
+                        buttonBoth.setAttribute("value", "Restart");
+                        buttonNo.setAttribute("value", "Quit");
+
+                        // enable buttons
+                        buttonYes.disabled = false;
+                        buttonBoth.disabled = false;
+                        buttonNo.disabled = false;
+
+                        // change info texts                        
+                        infoTxt.innerHTML = "Start date cannot be later than end date!";
+                        pathTxt.innerHTML = "Please amend dates, relaunch or quit.";
+
+                        // if one of the buttons is clicked, the appropriate action will be taken
+                        buttonYes.addEventListener("click", async (e) => {
+                            // hide the modal dialogue and then let the user try again
+                            modalBG.style.display = "none";
+
+                            // reset button text
+                            buttonYes.setAttribute("value", "Open file location & restart");
+                            buttonBoth.setAttribute("value", "Open file location & quit");
+                            buttonNo.setAttribute("value", "Quit now");
+
+                            // disable buttons
+                            buttonYes.disabled = true;
+                            buttonBoth.disabled = true;
+                            buttonNo.disabled = true;
+
+                            // reset info text
+                            infoTxt.innerHTML = "Your file has been saved under the following location:";
+                            pathTxt.innerHTML = "$path";
+
+                            // finally re-enable the submit button
+                            submit.disabled = false;
+                            if(datepickerElement===null||typeof datepickerElement === 'undefined') throw new Error("Datepicker element must not be null or undefined!");
+                            datepickerElement.disabled = false;
+
+                            // that's it, the user is free to try again now :D
+                        });
+                        buttonBoth.addEventListener("click", async (e) => {
+                            // relaunch app
+                            window.api.relaunchApp();
+                        });
+                        buttonNo.addEventListener("click", async (e) => {
+                            // close app
+                            window.api.closeApp();
+                        });
+
+                    } else { // continue                        
+                        // convert the iCal file to JSON
+                        let curFile = file;
+                        const jCal = await window.api.convertICalToJSON(curFile.path);
+                        //console.log(jCal);
+                        // strip the JSON file of unnecessary event objects
+                        const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
+                        //console.log(jCal_stripped);
+                        // build a new iCal file from stripped JSON
+                        const newICal = await window.api.convertJSONToICal(jCal_stripped);
+                        //console.log(newICal);
+                        // save the new iCal to the disk
+                        window.api.saveFileToDisk(curFile.path, curFile.name, newICal, "ics");
+
+                        // show modal bg
+                        modalBG.style.display = "flex";
+                        divModalBG.style.setProperty("background-color", "rgba(0,0,0,0.75)");
+
+                        // enable buttons
+                        buttonYes.disabled = false;
+                        buttonNo.disabled = false;
+                        buttonBoth.disabled = false;
+
+                        // inform user about save location
+                        let path = await window.api.getNewFilePath();
+                        pathTxt.innerHTML = path;
+
+                        // if one of the three buttons is clicked, take appropriate action
+                        buttonYes.addEventListener("click", async (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+
+                            // open file location
+                            window.api.openFilePath(path);
+
+                            // relaunch app
+                            window.api.relaunchApp();
+                        });
+                        buttonBoth.addEventListener("click", async (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+
+                            // open file location and quit
+                            window.api.openFilePath(path);
+
+                            // close app
+                            window.api.closeApp();
+                        });
+                        buttonNo.addEventListener("click", async (e) => {
+                            // close app
+                            window.api.closeApp();
+                        });
+                    }                    
+                });
+            }
+        }
+    } else {// let the user know that they should only drop one file at a time
+
+        // show modal bg
+        modalBG.style.display = "flex";
+        divModalBG.style.setProperty("background-color", "rgba(0,0,0,0.75)");
+
+        // hide unnecessary buttons and change the text for the others
+        buttonBoth.style.display = "none";
+        buttonYes.setAttribute("value", "Restart");
+        buttonNo.setAttribute("value", "Quit");
+        
+        // enable buttons
+        buttonYes.disabled = false;        
+        buttonNo.disabled = false;
+
+        // change info texts        
+        infoTxt.innerHTML = "You have dropped " + files.length + " files, but this tool can only handle 1 file at a time.";
+        pathTxt.innerHTML = "Please restart the app or quit.";
+
+        // if one of the two buttons is clicked, the appropriate action will be taken
+        buttonYes.addEventListener("click", async (e) => {
+            // relaunch app
+            window.api.relaunchApp();
+        });
+        buttonNo.addEventListener("click", async (e) => {
+            // close app
+            window.api.closeApp();
+        });
+
+    }
+});
+
+
+

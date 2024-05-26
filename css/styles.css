@@ -55,7 +55,7 @@ h3 {
     font-size: large;
     font-weight: bold;
 }
-div#descText {
+label#descText {
     color: var(--info-text);
     font-style: italic;
     word-break: break-word;

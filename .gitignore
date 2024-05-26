@@ -14,6 +14,7 @@ node_modules/
 bin/
 
 # build & release dir
+build/
 build/Release
 release/
 
