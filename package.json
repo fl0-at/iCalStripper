@@ -39,8 +39,8 @@
     "air-datepicker": "^3.6.0",
     "console-log-json": "^6.4.1",
     "electron-updater": "^6.8.11",
-    "ical-toolkit": "^1.0.9",
-    "random-words": "^2.0.1"
+    "random-words": "^2.0.1",
+    "rrule": "^2.8.1"
   },
   "build": {
     "appId": "at.fl0.iCalStripper",

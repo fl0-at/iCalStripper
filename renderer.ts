@@ -192,9 +192,7 @@ dropzone.addEventListener("drop", async (e) => {
                         const curFile = file;
                         let newICal: string;
                         try {
-                            const jCal = await window.api.convertICalToJSON(filePath);
-                            const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
-                            newICal = await window.api.convertJSONToICal(jCal_stripped);
+                            newICal = await window.api.stripICalFile(filePath, startDate, endDate);
                         } catch (error) {
                             submit.disabled = false;
                             datepickerElement.disabled = false;

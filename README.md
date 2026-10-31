@@ -2,6 +2,8 @@
 
 Create a "stripped" iCal by dragging an iCal file into this tool. Only events within a user-defined date range will be transferred to the new iCal.
 
+Events are retained as iCalendar components rather than rebuilt from a reduced set of fields. This preserves alarms, attendees, time-zone definitions, and other event properties. Recurring events are expanded within the selected date range and represented as a finite `DTSTART`/`RDATE` set; the original `RRULE` and out-of-range dates are removed. Detached overrides are kept as standalone events when their actual dates are in range. A recurrence producing more than 10,000 occurrences in the selected range, or using `RDATE;VALUE=PERIOD`, is rejected with an explicit error.
+
 ## How to use
 
 Drag an iCal file into the drop zone
