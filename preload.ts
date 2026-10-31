@@ -25,7 +25,7 @@ function initDatePicker(element:string, options:Partial<AirDatepickerOptions>){
 
 const api = {
     isFile: (path:string) => ipcRenderer.invoke("is-file", path),
-    isICal: (fileType:string) => ipcRenderer.invoke("is-iCal", fileType),
+    isICal: (fileType:string, fileName:string) => ipcRenderer.invoke("is-iCal", fileType, fileName),
     getFileContent: (path:string) => ipcRenderer.invoke("get-file-content", path),
     convertICalToJSON: (path:string) => ipcRenderer.invoke("convert-ics-to-json", path),
     stripJCal: (jCal:any, startDate:Date, endDate:Date) => ipcRenderer.invoke("strip-jcal", jCal, startDate, endDate),

@@ -2,9 +2,16 @@
 
 // Modules to control application life and create native browser window
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import {
+	collectICalEvents,
+	getICalProperty,
+	isICalEventWithinRange,
+	normalizeICalContent,
+	parseICalDate,
+	toICalBuilderDate
+} from './ical-utils';
 const path = require('path');
 const fs = require('fs').promises;
-const fs_2 = require('fs');
 const icalToolKit = require('ical-toolkit');
 const jsonLogger = require('console-log-json');
 const pth = require('path');
@@ -53,59 +60,6 @@ async function createWindow() {
 
 }
 
-function iCalDateToLocalDateTime(iCalDateString:string):Date {
-
-	// icalStr = '20110914T184000Z'			 
-	let y:number = Number(iCalDateString.substr(0, 4));
-	let m:number = Number(parseInt(iCalDateString.substr(4, 2), 10) - 1);
-	let d:number = Number(iCalDateString.substr(6, 2));
-	let h:number = Number(iCalDateString.substr(9, 2));
-	let min:number = Number(iCalDateString.substr(11, 2));
-	let sec:number = Number(iCalDateString.substr(13, 2));
-
-	// iCal dates are always stored in UTC, so get UTC date
-	let dateTimeUTC:Date = new Date(Date.UTC(y, m, d, h, min, sec));
-
-	// convert UTC date to local
-	let localDateTime:Date = new Date(
-		dateTimeUTC.getFullYear(),
-		dateTimeUTC.getMonth(),
-		dateTimeUTC.getDate(),
-		dateTimeUTC.getHours(),
-		dateTimeUTC.getMinutes(),
-		dateTimeUTC.getSeconds()
-	);
-
-	return localDateTime;
-
-}
-
-function iCalDateToLocalisedDateTime(iCalDateString:string, timeZoneString:string):Date {
-
-	// icalStr = '20110914T184000Z'			 
-	let y:number = Number(iCalDateString.substr(0, 4));
-	let m:number = Number(parseInt(iCalDateString.substr(4, 2), 10) - 1);
-	let d:number = Number(iCalDateString.substr(6, 2));
-	let h:number = Number(iCalDateString.substr(9, 2));
-	let min:number = Number(iCalDateString.substr(11, 2));
-	let sec:number = Number(iCalDateString.substr(13, 2));
-
-	// iCal dates are always stored in UTC, so get UTC date
-	let dateTimeUTC:Date = new Date(Date.UTC(y, m, d, h, min, sec));
-
-	// convert UTC date to local
-	let localisedDateTime:Date = new Date(
-		dateTimeUTC.toLocaleString(
-			"en-us", {
-				timeZone: timeZoneString
-			}
-		)
-	);
-
-	return localisedDateTime;
-
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -129,8 +83,10 @@ ipcMain.handle("is-file", async (_, path) => {
 })
 
 // check if the dropped file is an iCal file
-ipcMain.handle("is-iCal", async (_, fileType) => {
-	return fileType === "text/calendar" ? true : false;
+ipcMain.handle("is-iCal", async (_, fileType: string, fileName: string) => {
+	const supportedTypes = ["text/calendar", "application/ics", "application/x-ical", "text/x-vcalendar"];
+	const extension = pth.extname(fileName).toLowerCase();
+	return supportedTypes.includes(fileType.toLowerCase()) || extension === ".ics" || extension === ".ical";
 })
 
 // get file contents - only used for debugging
@@ -141,57 +97,45 @@ ipcMain.handle("get-file-content", async (_, path) => {
 // convert ICS to JSON
 ipcMain.handle("convert-ics-to-json", async (_, path) => {
 	const icsRes = await path;
-	// Convert
-	const json = await icalToolKit.parseFileToJSONSync(icsRes);
+	const fileContent = await fs.readFile(icsRes, "utf8");
+	const json = icalToolKit.parseToJSON(normalizeICalContent(fileContent));
+	if (json instanceof Error) throw json;
+	if (!json || !Array.isArray(json.VCALENDAR) || json.VCALENDAR.length === 0) {
+		throw new Error("The selected file does not contain a valid iCalendar.");
+	}
+	const calendar = json.VCALENDAR[0];
+	if (typeof calendar.VERSION !== "string" || typeof calendar.PRODID !== "string") {
+		throw new Error("The iCalendar is missing the required VERSION or PRODID property.");
+	}
 	return json;
 })
 
 // strip the jCal
-ipcMain.handle("strip-jcal", async (_, jCal, startDate, endDate) => {	
-	const newCal:any = {}; // declare new calendar obj
-	/* loop through the jCal and strip unwanted events */
-	for (let entry in jCal) {
-        //console.log(attributename + ": " + myobject[attributename]);
-		if (entry === "VCALENDAR") {
-			//newCal.push(entry, jCal[entry]);
-			newCal[entry] = jCal[entry];
-		} else if (entry === "VEVENT") {
+ipcMain.handle("strip-jcal", async (_, jCal, startDate, endDate) => {
+	const newCal: any = { VCALENDAR: jCal.VCALENDAR, VEVENT: [] };
+	const events = collectICalEvents(jCal);
+	const startBoundary = new Date(startDate);
+	const endBoundary = new Date(endDate);
 
-			// every event is itself an object with a numerical index
-			let eventObj = jCal[entry];
+	for (const event of events) {
+		const startProperty = getICalProperty(event, "DTSTART");
+		if (!startProperty) throw new Error("An iCalendar event is missing DTSTART.");
+		const eventStart = parseICalDate(startProperty);
 
-			// each of those event objects contains an array of key - value pairs
-			let newEventArr:Array<any> = [];
-			for (let indexPos in eventObj) {
-				let curEvent = eventObj[indexPos];
-				let eventStartDate: null|Date = null;
-				let eventEndDate: null|Date = null;
-				// loop through each event's attributes to determine its start and end date
-				for (let attributeName in curEvent) {
-					// determine whether to keep the event or not
-					switch (attributeName) {
-						case 'DTSTART':
-							// here we are using the current user's local time 
-							eventStartDate = iCalDateToLocalDateTime(curEvent[attributeName]);
-							break;
-						case 'DTEND':
-							// here we are using the current user's local time 
-							eventEndDate = iCalDateToLocalDateTime(curEvent[attributeName]);
-							break;
-						default:
-							break;
-					}
-				}
-				// finished looping through attributes - now either in- or exclude event				
-				if ((eventStartDate && eventEndDate && curEvent) && eventStartDate >= startDate && eventEndDate <= endDate) {
-					// we want to keep this one, since it is within our boundaries
-					newEventArr.push(curEvent);
-				}								
-			}
-
-			newCal[entry] = newEventArr;
+		const endProperty = getICalProperty(event, "DTEND");
+		const eventEnd = endProperty
+			? parseICalDate(endProperty)
+			: { ...eventStart, date: new Date(eventStart.date) };
+		if (eventStart.allDay !== eventEnd.allDay) {
+			throw new Error("An iCalendar event must use matching date types for DTSTART and DTEND.");
 		}
-		
+		if (!endProperty && eventStart.allDay) {
+			eventEnd.date.setDate(eventEnd.date.getDate() + 1);
+		}
+
+		if (isICalEventWithinRange(eventStart, eventEnd, startBoundary, endBoundary)) {
+			newCal.VEVENT.push(event);
+		}
 	}
 
 	const newJCal = JSON.parse(JSON.stringify(newCal));
@@ -222,17 +166,23 @@ ipcMain.handle("convert-json-to-ics", async (_, jCal_stripped) => {
 			for (let indexPos in infObj) {
 				
 				let curObj = infObj[indexPos];
+				const getCalendarValue = (propertyName: string) => getICalProperty(curObj, propertyName)?.value;
+				const prodid = getCalendarValue("PRODID");
+				const version = getCalendarValue("VERSION");
+				const calscale = getCalendarValue("CALSCALE");
+				const method = getCalendarValue("METHOD");
+				const calname = getCalendarValue("X-WR-CALNAME");
+				const description = getCalendarValue("X-WR-CALDESC");
+				const timezone = getCalendarValue("X-WR-TIMEZONE");
 
-				newICal.prodid = curObj['PRODID'];
-				newICal.version = curObj['VERSION'];
-				newICal.calscale = curObj['CALSCALE'];
-				newICal.method = curObj['METHOD'];
-				newICal.calname = curObj['X-WR-CALNAME'];
-				newICal.additionalTags = {
-					'X-WR-CALDESC': curObj['X-WR-CALDESC']
-				};
-				newICal.timezone = curObj['X-WR-TIMEZONE'];
-				newICal.tzid = curObj['X-WR-TIMEZONE'];
+				if (prodid) newICal.prodid = prodid;
+				if (version) newICal.version = version;
+				if (calscale) newICal.calscale = calscale;
+				if (method) newICal.method = method;
+				if (calname) newICal.calname = calname;
+				newICal.additionalTags = description ? { 'X-WR-CALDESC': description } : {};
+				newICal.timezone = timezone;
+				newICal.tzid = timezone;
 			}				
 		} else if (entry === "VEVENT") {
 
@@ -242,22 +192,41 @@ ipcMain.handle("convert-json-to-ics", async (_, jCal_stripped) => {
 			for (let indexPos in eventObj) {
 
 				let curEvent = eventObj[indexPos];				
+				const startProperty = getICalProperty(curEvent, "DTSTART");
+				const endProperty = getICalProperty(curEvent, "DTEND");
+				if (!startProperty) throw new Error("An iCalendar event is missing DTSTART.");
+				const eventStart = parseICalDate(startProperty);
+				const eventEnd = endProperty
+					? parseICalDate(endProperty)
+					: { ...eventStart, date: new Date(eventStart.date) };
+				if (!endProperty && eventStart.allDay) {
+					eventEnd.date.setDate(eventEnd.date.getDate() + 1);
+				}
+				if (eventStart.allDay !== eventEnd.allDay) {
+					throw new Error("An iCalendar event must use matching date types for DTSTART and DTEND.");
+				}
+				const getValue = (propertyName: string) => getICalProperty(curEvent, propertyName)?.value;
+				const stampProperty = getICalProperty(curEvent, "DTSTAMP");
+				const additionalTags: Record<string, string> = {};
+				const created = getValue("CREATED");
+				const lastModified = getValue("LAST-MODIFIED");
+				if (created) additionalTags.CREATED = created;
+				if (lastModified) additionalTags["LAST-MODIFIED"] = lastModified;
 
 				newICal.events.push({
-					start: iCalDateToLocalisedDateTime(curEvent['DTSTART'], newICal.timezone),
-					end: iCalDateToLocalisedDateTime(curEvent['DTEND'], newICal.timezone),
-					stamp: iCalDateToLocalisedDateTime(curEvent['DTSTAMP'], newICal.timezone),
-					uid: curEvent['UID'],
-					description: curEvent['DESCRIPTION'],
-					location: curEvent['LOCATION'],
-					sequence: curEvent['SEQUENCE'],
-					status: curEvent['STATUS'],
-					summary: curEvent['SUMMARY'],
-					transp: curEvent['TRANSP'],
-					additionalTags: {
-						'CREATED': curEvent['CREATED'],
-						'LAST-MODIFIED': curEvent['LAST-MODIFIED']
-					}
+					start: toICalBuilderDate(eventStart),
+					end: toICalBuilderDate(eventEnd),
+					stamp: stampProperty ? toICalBuilderDate(parseICalDate(stampProperty)) : undefined,
+					uid: getValue("UID"),
+					description: getValue("DESCRIPTION"),
+					location: getValue("LOCATION"),
+					sequence: getValue("SEQUENCE"),
+					status: getValue("STATUS"),
+					summary: getValue("SUMMARY"),
+					transp: getValue("TRANSP"),
+					allDay: eventStart.allDay,
+					floating: eventStart.floating,
+					additionalTags
 				});
 			}
 
@@ -266,14 +235,9 @@ ipcMain.handle("convert-json-to-ics", async (_, jCal_stripped) => {
 	}
 
 	// build iCal File
-	let icsFileContent = newICal.toString().replaceAll('\\\\n', '\\n').replaceAll('\\\\\\', '').replaceAll('\\\\', '');
-	// had to replace some escape characters as this is apparently neither handled by iCalToolkit nor by ical2json which it relies on
-
-	// check for any errors
-	if (icsFileContent instanceof Error) {
-		console.log('Returned Error, either handle it yourself somehow or configure to throw errors!');
-		// handle error somehow...
-	}
+	const generatedContent = newICal.toString();
+	if (generatedContent instanceof Error) throw generatedContent;
+	const icsFileContent = generatedContent.replaceAll('\\\\n', '\\n').replaceAll('\\\\\\', '').replaceAll('\\\\', '');
 
 	return icsFileContent;
 }) 
@@ -296,18 +260,29 @@ ipcMain.handle("save-file-to-disk", async (_, path, name, data, format) => {
 		filename = filename + "." + format;
 	}
 
-	const newDir = directory + "/stripped/";
+	const newDir = pth.join(directory, "stripped");
+	await fs.mkdir(newDir, { recursive: true });
 
-	if (!(fs_2.existsSync(newDir))) {
-		fs.mkdir(newDir);		
+	let newPath = pth.join(newDir, filename);
+	let suffix = 2;
+
+	while (true) {
+		try {
+			await fs.writeFile(newPath, data, { flag: "wx" });
+			break;
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+
+			const extension = pth.extname(filename);
+			const baseName = filename.slice(0, -extension.length);
+			newPath = pth.join(newDir, `${baseName}_${suffix}${extension}`);
+			suffix += 1;
+		}
 	}
 
-	const newPath = newDir + filename;
-
 	setFilePath(newPath);
-	const saveFile = await fs.writeFile(newPath, data);
 
-	return saveFile;
+	return newPath;
 })
 
 ipcMain.handle("getNewFilePath", async () => {

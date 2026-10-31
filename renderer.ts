@@ -12,6 +12,7 @@ const buttonBoth:HTMLButtonElement|null = document.querySelector("input.button#b
 const buttonNo:HTMLButtonElement|null = document.querySelector("input.button#no");
 const infoTxt:HTMLElement|null = document.getElementById("infotext");
 const pathTxt:HTMLElement|null = document.getElementById("path");
+document.getElementById("openSaveLocation")?.addEventListener("submit", (e) => e.preventDefault());
 
 // check if any HTML element does not exist
 if (!(
@@ -46,14 +47,6 @@ dropzone.addEventListener("drop", async (e) => {
     
     if (files.length === 1) {
 
-        // hide dropzone
-        dropzone.style.setProperty("display", "none");        
-        sectionBeforeDrop.style.setProperty("display", "none");
-
-        // show strip form
-        stripForm.style.setProperty("display", "flex");
-        sectionAfterDrop.style.setProperty("display", "flex");
-
         // get today's and tomorrow's datetime
         const todayDateTime = new Date(); 
         const tomorrowDateTime = new Date();
@@ -82,20 +75,13 @@ dropzone.addEventListener("drop", async (e) => {
                 firstDay: 0
             }
         };
-        window.api.newAirDatePicker(dpe, dpo);        
-
-        // enable the submit button        
-        submit.disabled = false;
-        if(datepickerElement===null||typeof datepickerElement === 'undefined') throw new Error("Datepicker element must not be null or undefined!");
-        datepickerElement.disabled = false;
-
         // for each file that was dropped, do this:
         for (const file of files) {
             const filePath = window.api.getPathForFile(file);
 
             // populate booleans with their appropriate values
-            const isFile = await window.api.isFile(filePath);
-            const isICal = await window.api.isICal(file.type);
+            const isFile = Boolean(filePath) && await window.api.isFile(filePath);
+            const isICal = await window.api.isICal(file.type, file.name);
 
             //const fileContent = await window.api.getFileContent(file.path);
             //console.log(String(fileContent));
@@ -103,8 +89,22 @@ dropzone.addEventListener("drop", async (e) => {
             //console.log(file, isFile, isICal);            
 
             if (isFile && isICal) {
+                // hide dropzone only after the dropped file has been validated
+                dropzone.style.setProperty("display", "none");
+                sectionBeforeDrop.style.setProperty("display", "none");
+
+                // show strip form
+                stripForm.style.setProperty("display", "flex");
+                sectionAfterDrop.style.setProperty("display", "flex");
+
+                window.api.newAirDatePicker(dpe, dpo);
+
+                // enable the submit button
+                submit.disabled = false;
+                datepickerElement.disabled = false;
+
                 // if the submit button is clicked:
-                submit.addEventListener("click", async (e) => {                                     
+                stripForm.addEventListener("submit", async (e) => {
 
                     // stop propagation and prevent default behaviour
                     e.stopPropagation();
@@ -130,6 +130,7 @@ dropzone.addEventListener("drop", async (e) => {
                     // assign dates to startDate and endDate params
                     const startDate = new Date( startYear, startMonth, startDay );
                     const endDate = new Date( endYear, endMonth, endDay );
+                    endDate.setHours(23, 59, 59, 999);
 
                     // check if startDate > endDate
                     if (!(startDate <= endDate)) { // show user a warning                       
@@ -188,18 +189,22 @@ dropzone.addEventListener("drop", async (e) => {
                         });
 
                     } else { // continue                        
-                        // convert the iCal file to JSON
-                        let curFile = file;
-                        const jCal = await window.api.convertICalToJSON(filePath);
-                        //console.log(jCal);
-                        // strip the JSON file of unnecessary event objects
-                        const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
-                        //console.log(jCal_stripped);
-                        // build a new iCal file from stripped JSON
-                        const newICal = await window.api.convertJSONToICal(jCal_stripped);
-                        //console.log(newICal);
+                        const curFile = file;
+                        let newICal: string;
+                        try {
+                            const jCal = await window.api.convertICalToJSON(filePath);
+                            const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
+                            newICal = await window.api.convertJSONToICal(jCal_stripped);
+                        } catch (error) {
+                            submit.disabled = false;
+                            datepickerElement.disabled = false;
+                            const message = error instanceof Error ? error.message : String(error);
+                            window.alert(`Unable to process this iCalendar file: ${message}`);
+                            return;
+                        }
+
                         // save the new iCal to the disk
-                        window.api.saveFileToDisk(filePath, curFile.name, newICal, "ics");
+                        await window.api.saveFileToDisk(filePath, curFile.name, newICal, "ics");
 
                         // show modal bg
                         modalBG.style.display = "flex";
@@ -212,7 +217,7 @@ dropzone.addEventListener("drop", async (e) => {
 
                         // inform user about save location
                         let path = await window.api.getNewFilePath();
-                        pathTxt.innerHTML = path;
+                        pathTxt.textContent = path;
 
                         // if one of the three buttons is clicked, take appropriate action
                         buttonYes.addEventListener("click", async (e) => {
@@ -241,6 +246,8 @@ dropzone.addEventListener("drop", async (e) => {
                         });
                     }                    
                 });
+            } else {
+                dropzone.textContent = "Please drop a valid iCal (.ics) file.";
             }
         }
     } else {// let the user know that they should only drop one file at a time
@@ -274,5 +281,3 @@ dropzone.addEventListener("drop", async (e) => {
 
     }
 });
-
-

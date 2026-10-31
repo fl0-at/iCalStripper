@@ -5,6 +5,7 @@
   "main": "build/main.js",
   "scripts": {
     "compile": "tsc",
+    "test": "npm run compile && node --test",
     "prepare-build": "npm run copystuff && npm run copystyles",
     "copystuff": "copyfiles -e \"./*.ts\" -e \"./tsconfig.json\" -e \"./*.sln\" -e \"./*.njsproj\" \"./*.*\" \"./build\"",
     "copystyles": "copyfiles \"./css/**\" \"./build\" && copyfiles \"./fonts/**\" \"./build\"",
