@@ -1,15 +1,13 @@
 // T-109 enforce strict typing and get rid of "any" types wherever possible
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require('electron');
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 const path = require('path');
 const fs = require('fs').promises;
 const fs_2 = require('fs');
 const icalToolKit = require('ical-toolkit');
 const jsonLogger = require('console-log-json');
 const pth = require('path');
-const randWords = require('random-words');
-const { shell } = require('electron');
 const { autoUpdater } = require("electron-updater");
 
 jsonLogger.LoggerAdaptToConsole();
@@ -289,6 +287,7 @@ ipcMain.handle("save-file-to-disk", async (_, path, name, data, format) => {
 	let filename = '';
 
 	if (name === '') {
+		const { generate: randWords } = await import('random-words');
 		const randString = randWords({ exactly: 2, join: '' })
 		filename = randString + "." + format;
 	} else {

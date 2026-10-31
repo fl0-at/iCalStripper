@@ -1,5 +1,5 @@
 import { AirDatepickerOptions } from 'air-datepicker';
-import { ipcRenderer, contextBridge, Data } from 'electron';
+import { ipcRenderer, contextBridge, webUtils } from 'electron';
 const AirDatePicker = require('air-datepicker');
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -30,11 +30,12 @@ const api = {
     convertICalToJSON: (path:string) => ipcRenderer.invoke("convert-ics-to-json", path),
     stripJCal: (jCal:any, startDate:Date, endDate:Date) => ipcRenderer.invoke("strip-jcal", jCal, startDate, endDate),
     convertJSONToICal: (jCal_stripped:any) => ipcRenderer.invoke("convert-json-to-ics", jCal_stripped),
-    saveFileToDisk: (path:string, name:string, data:Data, format:string) => ipcRenderer.invoke("save-file-to-disk", path, name, data, format),
+    saveFileToDisk: (path:string, name:string, data:string, format:string) => ipcRenderer.invoke("save-file-to-disk", path, name, data, format),
     closeApp: () => ipcRenderer.invoke("close-app"),
     getNewFilePath: () => ipcRenderer.invoke("getNewFilePath"),
     openFilePath: (path:string) => ipcRenderer.invoke("open-file-path", path),
     relaunchApp: () => ipcRenderer.invoke("relaunch-app"),
+    getPathForFile: (file:File) => webUtils.getPathForFile(file),
     newAirDatePicker: (element:string, options:Partial<AirDatepickerOptions>) => initDatePicker(element, options),
 }
 

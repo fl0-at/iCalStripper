@@ -91,9 +91,10 @@ dropzone.addEventListener("drop", async (e) => {
 
         // for each file that was dropped, do this:
         for (const file of files) {
+            const filePath = window.api.getPathForFile(file);
 
             // populate booleans with their appropriate values
-            const isFile = await window.api.isFile(file.path);
+            const isFile = await window.api.isFile(filePath);
             const isICal = await window.api.isICal(file.type);
 
             //const fileContent = await window.api.getFileContent(file.path);
@@ -189,7 +190,7 @@ dropzone.addEventListener("drop", async (e) => {
                     } else { // continue                        
                         // convert the iCal file to JSON
                         let curFile = file;
-                        const jCal = await window.api.convertICalToJSON(curFile.path);
+                        const jCal = await window.api.convertICalToJSON(filePath);
                         //console.log(jCal);
                         // strip the JSON file of unnecessary event objects
                         const jCal_stripped = await window.api.stripJCal(jCal, startDate, endDate);
@@ -198,7 +199,7 @@ dropzone.addEventListener("drop", async (e) => {
                         const newICal = await window.api.convertJSONToICal(jCal_stripped);
                         //console.log(newICal);
                         // save the new iCal to the disk
-                        window.api.saveFileToDisk(curFile.path, curFile.name, newICal, "ics");
+                        window.api.saveFileToDisk(filePath, curFile.name, newICal, "ics");
 
                         // show modal bg
                         modalBG.style.display = "flex";
@@ -273,6 +274,5 @@ dropzone.addEventListener("drop", async (e) => {
 
     }
 });
-
 
 

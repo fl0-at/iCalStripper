@@ -1,4 +1,5 @@
 # iCalStripper
+
 Create a "stripped" iCal by dragging an iCal file into this tool. Only events within a user-defined date range will be transferred to the new iCal.
 
 ## How to use
@@ -20,9 +21,12 @@ The stripped iCal will be placed in a separate directory called "stripped", at t
 ## Want to build for your platform?
 
 Clone the repo and follow these steps:
-```
+
+```sh
+# Requires Node.js >= 22.12.0
+
 # install dependencies
-npm install
+npm ci
 
 # build for Windows (installer)
 npm run build-win
@@ -33,6 +37,6 @@ npm run build-win-portable
 # build for Mac (untested, I don't have access to a Mac)
 npm run build-mac
 
-# build for Linux (only tested on Debian)
+# build for Linux
 npm run build-linux
 ```
