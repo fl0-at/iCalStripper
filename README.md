@@ -51,7 +51,9 @@ npm run build-linux
 
 Set `GH_TOKEN` to a GitHub token with Contents read/write permission for this repository, either in the terminal environment or in the git-ignored `electron-builder.env` file at the repository root. An existing environment variable takes precedence over the file.
 
-Run `npm run publish-win` to build and upload the installer, its `.blockmap`, and `latest.yml` to a GitHub draft release. All platforms inherit the shared `build.publish` configuration in `package.json`; avoid adding a redundant Windows-specific publisher, which can create duplicate drafts.
+Before running `npm run publish-win`, create and save one GitHub draft release with the tag matching the package version (for example, `v1.0.0`). The current electron-builder version can initialize multiple publishers concurrently and create duplicate drafts if no matching release exists. If duplicates already exist, keep one matching draft and delete only the extra drafts before rerunning.
+
+Run `npm run publish-win` to build and upload the installer, its `.blockmap`, and `latest.yml` to that draft. All platforms inherit the shared `build.publish` configuration in `package.json`. Rerunning replaces matching assets already attached to the draft.
 
 Before publishing the draft, verify that all three assets are attached and that the release tag points to the intended release commit.
 
