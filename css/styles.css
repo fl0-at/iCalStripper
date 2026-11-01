@@ -82,6 +82,15 @@ div.container {
 }
 input.datepicker {
     text-align: center;
+    font: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    width: 230px;
+    max-width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d5d5d5;
+    border-radius: 8px;
+    cursor: pointer;
 }
 input.datepicker:hover{
     background-color: var(--bg-color-washed-out);
@@ -191,53 +200,200 @@ form#stripParams{
     display: none;    
 }
 .bg-modal {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    position: absolute;
-    top: 0;
-     
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.6);
     display: none;
+    align-items: center;
     justify-content: center;
-    align-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    -webkit-app-region: no-drag;
 }
 .modal-content {
-    width: 60vw;
-    height: 40vh;
+    width: 440px;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
     background-color: var(--bg-color);
-    border-radius: 5px; 
-    text-align: center;
-    display: flex;    
-    align-content: center;
-    justify-content: center;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-self: center;
-    padding: 3vh 3vw 3vh 3vw;
+    border-top: 5px solid var(--secondary-color);
+    border-radius: 14px;
+    box-shadow: 0 16px 60px rgba(0, 0, 0, 0.3);
+    text-align: left;
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.5;
 }
-form#openSaveLocationText input.submit {
-    width: 25%;
-    padding-left: 1vw;
-    padding-right: 1vw;
+.modal-content h2 {
+    margin: 0 0 12px;
+    font-size: 24px;
 }
 div.modal-text{
-    width: 75%;
-    display: block;
-    margin: auto;
+    margin: 0 0 12px;
     word-break: break-word;
 }
 div#path{
-    font-style: italic;
+    color: #555;
 }
-form#openSaveLocation {
+div#path.saved-path {
+    padding: 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    background: var(--bg-color-washed-out);
+    font-family: Consolas, monospace;
+    user-select: text;
+}
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+.button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 11px 16px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
     -webkit-app-region: no-drag;
 }
-.air-datepicker {
+.button-primary {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+.button-secondary {
+    background: var(--bg-color-washed-out);
+    color: var(--primary-color);
+    border-color: #d5d5d5;
+}
+.button-quiet {
+    background: transparent;
+    color: #555;
+}
+.button:hover:not(:disabled) {
+    filter: brightness(0.95);
+}
+button:focus-visible, input:focus-visible {
+    outline: 3px solid var(--secondary-color);
+    outline-offset: 3px;
+}
+button:disabled, input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.datepicker-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-sizing: border-box;
     -webkit-app-region: no-drag;
-    --adp-cell-background-color-selected: var(--primary-color) !important;
-    --adp-cell-background-color-in-range: var(--info-text) !important;
-    --adp-cell-background-color-selected-hover: var(--secondary-color) !important;
-    --adp-day-name-color: var(--secondary-color) !important;
-    --adp-color-current-date: var(--secondary-color) !important;
-    --adp-background-color-in-range: var(--info-text) !important;
+}
+[hidden] {
+    display: none !important;
+}
+.date-range-picker {
+    width: 320px;
+    max-width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 16px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    background: var(--bg-color);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    font-size: 14px;
+}
+.datepicker-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.datepicker-header button {
+    font: inherit;
+    font-weight: bold;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    min-width: 32px;
+    min-height: 32px;
+    cursor: pointer;
+}
+.datepicker-heading {
+    flex: 1;
+}
+.datepicker-weekdays, .datepicker-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+}
+.datepicker-weekdays {
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #886000;
+    margin-bottom: 6px;
+}
+.datepicker-grid-wide {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.datepicker-cell {
+    font: inherit;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--primary-color);
+    cursor: pointer;
+}
+.datepicker-grid-wide .datepicker-cell {
+    height: 48px;
+}
+.datepicker-cell.other-month {
+    color: #888;
+}
+.datepicker-cell.in-range {
+    background: #e9e9e9;
+}
+.datepicker-cell[aria-current="date"] {
+    box-shadow: inset 0 -2px var(--secondary-color);
+    font-weight: bold;
+}
+.datepicker-cell.selected {
+    background: var(--primary-color);
+    color: var(--bg-color);
+}
+.datepicker-cell:hover:not(:disabled), .datepicker-header button:hover:not(:disabled) {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+.datepicker-status {
+    margin: 12px 0;
+    color: #666;
+    text-align: center;
+    font-size: 12px;
+}
+.datepicker-close {
+    width: 100%;
+}
+@media (max-width: 480px) {
+    #stripParams tr {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    td.datepicker, input.datepicker {
+        width: 100%;
+    }
+    .modal-content {
+        padding: 18px;
+    }
 }

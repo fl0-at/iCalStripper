@@ -1,6 +1,4 @@
-import { AirDatepickerOptions } from 'air-datepicker';
 import { ipcRenderer, contextBridge, webUtils } from 'electron';
-const AirDatePicker = require('air-datepicker');
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -19,10 +17,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
 });
 
-function initDatePicker(element:string, options:Partial<AirDatepickerOptions>){
-    new AirDatePicker(element, options);       
-}
-
 const api = {
     isFile: (path:string) => ipcRenderer.invoke("is-file", path),
     isICal: (fileType:string, fileName:string) => ipcRenderer.invoke("is-iCal", fileType, fileName),
@@ -34,7 +28,6 @@ const api = {
     openFilePath: (path:string) => ipcRenderer.invoke("open-file-path", path),
     relaunchApp: () => ipcRenderer.invoke("relaunch-app"),
     getPathForFile: (file:File) => webUtils.getPathForFile(file),
-    newAirDatePicker: (element:string, options:Partial<AirDatepickerOptions>) => initDatePicker(element, options),
 }
 
 contextBridge.exposeInMainWorld("api", api);

@@ -37,7 +37,6 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "air-datepicker": "^3.6.0",
     "console-log-json": "^6.4.1",
     "electron-updater": "^6.8.11",
     "random-words": "^2.0.1",
