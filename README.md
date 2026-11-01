@@ -47,6 +47,14 @@ npm run build-mac
 npm run build-linux
 ```
 
+## Publishing a Windows release
+
+Set `GH_TOKEN` to a GitHub token with Contents read/write permission for this repository, either in the terminal environment or in the git-ignored `electron-builder.env` file at the repository root. An existing environment variable takes precedence over the file.
+
+Run `npm run publish-win` to build and upload the installer, its `.blockmap`, and `latest.yml` to a GitHub draft release. All platforms inherit the shared `build.publish` configuration in `package.json`; avoid adding a redundant Windows-specific publisher, which can create duplicate drafts.
+
+Before publishing the draft, verify that all three assets are attached and that the release tag points to the intended release commit.
+
 ## Drag-and-drop development and testing
 
 Dropped-file paths are obtained through `webUtils.getPathForFile` in the preload bridge, not the removed Electron `File.path` property. Keep TypeScript's `moduleDetection` set to `legacy`: the renderer is a plain browser script, while the main and preload files use CommonJS. Emitting a CommonJS `exports` reference into the renderer prevents its UI handlers from registering.
