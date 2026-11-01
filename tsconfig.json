@@ -4,6 +4,7 @@
 		"target": "es6",
 		"module": "Node16",
 		"moduleResolution": "Node16",
+		"moduleDetection": "legacy",
 		"sourceMap": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,

@@ -6,7 +6,7 @@ Events are retained as iCalendar components rather than rebuilt from a reduced s
 
 ## How to use
 
-Drag an iCal file into the drop zone
+Drag exactly one local `.ics` or `.ical` file into the drop zone. A valid drop goes directly to the date-range page; it does not open a file-selection dialog. Invalid drops show a message in the drop zone so you can try again without restarting.
 
 ![image](https://github.com/fl0-at/iCalStripper/assets/2953363/ff958666-e240-4de0-987a-b72b88df499c)
 
@@ -42,3 +42,9 @@ npm run build-mac
 # build for Linux
 npm run build-linux
 ```
+
+## Drag-and-drop development and testing
+
+Dropped-file paths are obtained through `webUtils.getPathForFile` in the preload bridge, not the removed Electron `File.path` property. Keep TypeScript's `moduleDetection` set to `legacy`: the renderer is a plain browser script, while the main and preload files use CommonJS. Emitting a CommonJS `exports` reference into the renderer prevents its UI handlers from registering.
+
+Run `npm test` for calendar-conversion tests. Run `npm run test:drag-drop` on a desktop session for the Electron integration test. It sends native file drops through Chromium's debugging protocol, checks that date selection appears without a dialog, checks invalid-drop recovery, and verifies that the saved calendar uses the dropped file's source directory.

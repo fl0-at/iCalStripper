@@ -29,11 +29,11 @@ if (!(
 }
 
 
-dropzone.addEventListener("dragover", (e) => {
-    // stop propagation and prevent default behaviour
-    e.stopPropagation();
-    e.preventDefault();
-});
+// Prevent Chromium from navigating to files dropped outside the drop zone.
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => e.preventDefault());
+
+let loadingFile = false;
 
 dropzone.addEventListener("drop", async (e) => {
     // stop propagation and prevent default behaviour
@@ -41,7 +41,11 @@ dropzone.addEventListener("drop", async (e) => {
     e.preventDefault();
 
     // get files
-    if(!e.dataTransfer) throw new Error("Unexpected Error");
+    if (loadingFile || dropzone.style.display === "none") return;
+    if (!e.dataTransfer) {
+        dropzone.textContent = "Unable to read the dropped file. Please try again.";
+        return;
+    }
     
     const files = e.dataTransfer.files;
     
@@ -77,16 +81,24 @@ dropzone.addEventListener("drop", async (e) => {
         };
         // for each file that was dropped, do this:
         for (const file of files) {
-            const filePath = window.api.getPathForFile(file);
-
-            // populate booleans with their appropriate values
-            const isFile = Boolean(filePath) && await window.api.isFile(filePath);
-            const isICal = await window.api.isICal(file.type, file.name);
-
-            //const fileContent = await window.api.getFileContent(file.path);
-            //console.log(String(fileContent));
-
-            //console.log(file, isFile, isICal);            
+            let filePath: string;
+            let isFile: boolean;
+            let isICal: boolean;
+            loadingFile = true;
+            try {
+                filePath = window.api.getPathForFile(file);
+                if (!filePath) throw new Error("The dropped file has no local file path.");
+                isFile = await window.api.isFile(filePath);
+                isICal = await window.api.isICal(file.type, file.name);
+                if (isFile && isICal) window.api.newAirDatePicker(dpe, dpo);
+            } catch (error) {
+                console.error("Unable to load the dropped iCalendar file:", error);
+                const message = error instanceof Error ? error.message : String(error);
+                dropzone.textContent = `Unable to load this iCalendar file: ${message} Please try again.`;
+                return;
+            } finally {
+                loadingFile = false;
+            }
 
             if (isFile && isICal) {
                 // hide dropzone only after the dropped file has been validated
@@ -96,8 +108,6 @@ dropzone.addEventListener("drop", async (e) => {
                 // show strip form
                 stripForm.style.setProperty("display", "flex");
                 sectionAfterDrop.style.setProperty("display", "flex");
-
-                window.api.newAirDatePicker(dpe, dpo);
 
                 // enable the submit button
                 submit.disabled = false;
@@ -245,37 +255,10 @@ dropzone.addEventListener("drop", async (e) => {
                     }                    
                 });
             } else {
-                dropzone.textContent = "Please drop a valid iCal (.ics) file.";
+                dropzone.textContent = "Please drop a valid iCal (.ics or .ical) file.";
             }
         }
-    } else {// let the user know that they should only drop one file at a time
-
-        // show modal bg
-        modalBG.style.display = "flex";
-        divModalBG.style.setProperty("background-color", "rgba(0,0,0,0.75)");
-
-        // hide unnecessary buttons and change the text for the others
-        buttonBoth.style.display = "none";
-        buttonYes.setAttribute("value", "Restart");
-        buttonNo.setAttribute("value", "Quit");
-        
-        // enable buttons
-        buttonYes.disabled = false;        
-        buttonNo.disabled = false;
-
-        // change info texts        
-        infoTxt.innerHTML = "You have dropped " + files.length + " files, but this tool can only handle 1 file at a time.";
-        pathTxt.innerHTML = "Please restart the app or quit.";
-
-        // if one of the two buttons is clicked, the appropriate action will be taken
-        buttonYes.addEventListener("click", async (e) => {
-            // relaunch app
-            window.api.relaunchApp();
-        });
-        buttonNo.addEventListener("click", async (e) => {
-            // close app
-            window.api.closeApp();
-        });
-
+    } else {
+        dropzone.textContent = "Please drop exactly one iCal (.ics or .ical) file at a time.";
     }
 });
