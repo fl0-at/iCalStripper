@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <title>iCalStripper</title>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <link rel="stylesheet" href="./css/styles.css">
-    <link rel="stylesheet" href="./node_modules/air-datepicker/air-datepicker.css" />
     
+    <script defer src="./datepicker.js"></script>
     <script defer src="./renderer.js"></script>
 </head>
 <body>
@@ -37,18 +38,17 @@
                 <form id="stripParams">
                     <table>
                         <tr>
-                            <td colspan="4"><div id="descText">Enter the daterange you want to keep from the iCal File</div></td>
+                            <td colspan="4"><label for="dateRangePicker" id="descText">Enter the daterange you want to keep from the iCal File</label></td>
                         </tr>
                         <tr>
                             <td class="label">
-                                <label for="startDate">Date Range</label>
+                                <label for="dateRangePicker">Date Range</label>
                             </td>
                             <td class="datepicker">
                                 <input name="dateRange"
                                        type="text"
                                        id="dateRangePicker"
                                        class="datepicker"
-                                       label="Date Range"
                                        readonly
                                        required
                                 />
@@ -77,39 +77,23 @@
                 <div class="list">
                     <span class="icon">&#11041;</span> Node.js <span id="node-version"></span><br>
                     <span class="icon">&#127760;</span> Chromium <span id="chrome-version"></span><br>
-                    <span class="icon">&#9883;</span> Electron <span id="electron-version"></span><br>
-                    <span class="icon">📆</span> iCal Toolkit <span id="ical-toolkit-version"></span><br>
-                    <span class="icon">📅</span> AIR DATEPICKER <span id="air-datepicker-version"></span>
+                    <span class="icon">&#9883;</span> Electron <span id="electron-version"></span>
                 </div>
             </div>
         </div>
     </footer>
 
     <div class="bg-modal">
-        <div class="modal-content" id="openSaveLocationPopup">
+        <div class="modal-content" id="openSaveLocationPopup" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="infotext path">
+            <h2 id="modalTitle">Your calendar is ready</h2>
             <div class="modal-text" id="infotext">Your file has been saved under the following location:</div>
             <div class="modal-text" id="path">$path</div>
             <div class="modal-text" id="question">How would you like to proceed?</div>
-            <form id="openSaveLocation">
-                <input name="Yes"
-                       type="submit"
-                       id="yes"
-                       class="button"
-                       value="Open file location & restart"
-                       disabled />
-                <input name="Both"
-                       type="submit"
-                       id="both"
-                       class="button"
-                       value="Open file location & quit"
-                       disabled />
-                <input name="No"
-                       type="submit"
-                       id="no"
-                       class="button"
-                       value="Quit now"
-                       disabled />
-            </form>           
+            <div id="openSaveLocation" class="modal-actions">
+                <button type="button" id="yes" class="button button-primary">Open file location & restart</button>
+                <button type="button" id="both" class="button button-secondary">Open file location & quit</button>
+                <button type="button" id="no" class="button button-quiet">Quit now</button>
+            </div>
         </div>        
     </div>
 </body>
