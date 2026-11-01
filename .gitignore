@@ -29,3 +29,7 @@ log/
 # VisualStudio files
 *.njsproj
 *.sln
+
+# .env
+.env
+electron-builder.env
